@@ -1,0 +1,18 @@
+[package]
+name = "alectrona-cli"
+version = "0.1.0"
+authors = ["bilko"]
+
+[[bin]]
+name = "alectrona"
+path = "src/main.rs"
+
+[dependencies]
+alectrona = { path = "alectrona" }
+clap = "*"
+toml = "*"
+
+[profile.test]
+opt-level = 3
+
+[workspace]

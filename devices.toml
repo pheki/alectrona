@@ -1,0 +1,17 @@
+[harpia]
+name = "Moto G4 Play"
+family = "MotoKitKat"
+width = 720
+height = 1280
+
+[lux]
+name = "Moto X Play"
+family = "MotoKitKat"
+width = 1080
+height = 1920
+
+[oneplus3]
+name = "OnePlus 3"
+family = "OnePlus3"
+width = 1080
+height = 1920

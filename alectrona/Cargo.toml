@@ -1,0 +1,16 @@
+[package]
+name = "alectrona"
+version = "0.1.0"
+authors = ["bilko"]
+
+[features]
+default = ["jpeg"]
+# jpeg is reexported for now as it needs multithreading support (image doesn't reexport the crayon feature of jpeg-decoder)
+jpeg = ["image/jpeg"]
+
+[dependencies]
+
+[dependencies.image]
+version = "*"
+default-features = false
+features = ["gif_codec", "ico", "png_codec", "pnm", "ppm", "tga", "tiff", "webp", "bmp", "hdr"] # every default but jpeg
