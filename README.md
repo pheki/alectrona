@@ -23,6 +23,12 @@ alectrona is a boot logo manipulator programmed in rust that was created with th
 | lux | Moto X Play | MotoKitKat | No | Yes |
 | oneplus3 | OnePlus 3 | OnePlus3 | No | Yes |
 
+# Installation Steps
+
+For now, to install you need cargo (which comes with rustup). Just follow the installation steps at https://rustup.rs/ and then run ```cargo install https://github.com/pheki/alectrona.git```.
+
+Make sure you have rust's bin folder ($HOME/.cargo/bin) on your path.
+
 # Usage
 Note: this program will overwrite files by default, so be careful with your filenames.
 
