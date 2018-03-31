@@ -26,7 +26,7 @@ alectrona is a boot logo manipulator programmed in rust that was created with th
 # Usage
 Note: this program will overwrite files by default, so be careful with your filenames.
 
-There are 4 possible actions to use with the alectrona-cli package:
+There are 4 possible subcommands to use with the alectrona-cli package:
 - header: prints the file header
 - extract: extracts a single logo from the file
 - extract-all: extracts all logos from the file to a directory (folder)
