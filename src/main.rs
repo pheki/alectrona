@@ -30,6 +30,12 @@ fn main() {
             .help("Codename of the device codename correspondent to the binary boot logo file")
             .takes_value(true)
         )
+        // Yes, this should be inside the replace subcommand and inside the replace action, but it's not for now
+        .arg(Arg::with_name("resize")
+            .short("r")
+            .long("resize")
+            .help("Setting this will make the image be resized when replaced if not already in the device size")
+        )
         .subcommand(SubCommand::with_name("extract")
             .arg(Arg::with_name("identifier")
                 .value_name("LOGO_IDENTIFIER")
@@ -134,12 +140,14 @@ fn main() {
                     device["family"].as_str().expect("device.family is not a string")
                 ).expect("device family not supported")
         };
-        let resize = {
-                (device["width"].as_integer().unwrap() as u32,
+        let resize = if matches.occurrences_of("resize") > 0 {
+            Some((device["width"].as_integer().unwrap() as u32,
                 device["height"].as_integer().unwrap() as u32
-                )
+            ))
+        } else {
+            None
         };
-        (Some(device_family), Some(resize))
+        (Some(device_family), resize)
     } else {
         (None, None)
     };

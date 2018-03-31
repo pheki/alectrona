@@ -1,16 +1,18 @@
+#![warn(missing_docs)]
+//! You can find the README at README.md
+
 extern crate image;
 
+/// This module contains data structures for the binary files and the logos inside them.
 pub mod data;
 mod codec;
-
-#[cfg(test)]
-mod tests;
 
 pub use data::LogoBin;
 
 use std::collections::HashMap;
 use std::fs::File;
 use std::io;
+use std::fmt;
 use std::fs::OpenOptions;
 use std::error::Error;
 use std::convert;
@@ -19,9 +21,17 @@ use LogoError::*;
 
 use std::path::Path;
 
+use image::FilterType;
+use image::GenericImage;
+/// DeviceFamily of the device related to the boot logo binary.
 #[derive(Copy, Clone, Debug)]
 pub enum DeviceFamily {
+    /// This family is for Motorola devices that came with Android KitKat (4.4) or newer installed.
+    /// Those devices should all have the same format for the logo binary (logo.bin) file.
+    ///
+    /// (I am not sure about devices that have been updated from older versions to KitKat).
     MotoKitKat,
+    /// This family is for the OnePlus 3 (it could possibly work for OnePlus 3T devices, but I'm not sure).
     OnePlus3,
     // Custom(String),
 }
@@ -37,27 +47,35 @@ impl FromStr for DeviceFamily {
     }
 }
 
-/// Defines actions for the main program to do
+/// Defines actions for the [`run`] function.
 pub enum Action {
-    // extract should need logo_identifier and extraction_path
+    /// Extracts the image with the identifier to the path.
     Extract(String, String),
+    /// Extract all images in the binary file to the directory in the path.
     ExtractAll(String),
+    /// Gets the data::LogoBin struct
     GetLogoBin,
-    // replace needs logo_identifier, replace_image_path and new_logo_path
+    /// Replace takes a HashMap of logo identifiers, replace image paths and the new logo.bin path.
     Replace(HashMap<String, String>, String),
 }
 
+/// Configuration to be used with [`run`];
 pub struct Config {
+    /// Value of the configuration action.
     pub action: Action,
-    // should be a Path? AsRef<Path?>
+    /// String that represents input filename
     pub input_filename: String,
+    /// "Family" of the device related to the boot logo binary.
     pub device_family: Option<DeviceFamily>,
+    /// Defines if should overwrite output file(s)
     pub overwrite: bool,
-    // not yet used field
+    // Yes, this should be inside the replace subcommand and inside the replace action, but it's not for now
+    /// If Some((width, height)), resize images to the (width, height) dimensions if replacing logo
+    /// and they're not in those dimensions already. Uses the Lanczos3 filter.
     pub resize: Option<(u32, u32)>,
 }
 
-
+/// Runs the program, based on the config struct.
 pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
 
 
@@ -96,7 +114,14 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
         },
         Action::Replace(replace_map, outfilename) => {
             for (id, image_location) in replace_map.into_iter() {
-                let img = image::open(image_location).expect("Could not open image");
+                let mut img = image::open(image_location).expect("Could not open image");
+                // shadows image, resizing if config.resize is set
+                if let Some(dimensions) = config.resize {
+                    // only resizes if the resize dimension is different than the actual one
+                    if dimensions != img.dimensions() {
+                        img = img.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3);
+                    }
+                };
                 logo_bin.encode_to_logo_with_id(img, &id)?;
             }
             logo_bin.process_changes();
@@ -130,23 +155,34 @@ fn create_file(path: &Path, overwrite: bool) -> Result<File, LogoError> {
     }
 }
 
+/// Error type for functions in the alectrona module.
 #[derive(Debug)]
 pub enum LogoError {
     #[allow(dead_code)]
+    /// Error thrown when the device defined is not supported.
     UnsupportedDevice,
+    /// Error thrown when the image MIME type does not match.
     WrongImageMagicNumber,
+    /// Error thrown when the image identifier does not match.
     WrongIdentifier,
+    /// Error thrown when the image is not on the expected format.
     WrongImageFormat,
+    /// Decoded image does not have the expected image size.
     WrongImageSize,
-    IOError(std::io::Error),
+    /// Input/output error
+    IOError(io::Error),
+    /// There was an error in the image library.
     ImageError(image::ImageError),
+    /// Would overwrite output file when config.overwrite is set to false.
     WouldOverwrite,
+    /// Generated file is to big for device.
     TooBig,
+    /// When extracting all files, output path is not a directory.
     NotADirectory,
 }
 
 impl std::fmt::Display for LogoError {
-    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         writeln!(fmt, "Error: {}", self.description())?;
         if let Some(cause) = self.cause() {
             writeln!(fmt, "Cause: {}", cause)
@@ -172,7 +208,7 @@ impl std::error::Error for LogoError {
         }
     }
 
-    fn cause(&self) -> Option<&std::error::Error> {
+    fn cause(&self) -> Option<&Error> {
         match *self {
             IOError(ref cause) => Some(cause),
             ImageError(ref cause) => Some(cause),

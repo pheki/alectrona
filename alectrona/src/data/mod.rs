@@ -15,6 +15,7 @@ use DeviceFamily;
 
 use codec;
 
+/// The data of a single logo in a logo binary.
 #[derive(Debug)]
 pub struct Logo {
     identifier: String,
@@ -26,40 +27,46 @@ pub struct Logo {
 
 
 impl Logo {
+    /// Gets the identifier of the logo.
     pub fn identifier(&self) -> &str {
         &self.identifier[..]
     }
+    /// Gets the location of the logo in the binary file.
     pub fn location(&self) -> usize {
         self.location
     }
+    /// Gets the width of the logo.
     pub fn width(&self) -> u32 {
         self.width
     }
+    /// Gets the height of the logo.
     pub fn height(&self) -> u32 {
         self.height
     }
-    /// Returns original image data
+    /// Returns reference a reference to the image data.
     pub fn data(&self) -> &Vec<u8> {
         &self.data
     }
-    /// Replace data to write in file later
-    /// Will not update location of subsequent Logos
-    pub fn set_data(&mut self, new_data: Vec<u8>) {
-        // self.size = new_data.len();
-        self.data = new_data;
-    }
-
+    // /// Sets data to write in file later.
+    // /// Will not update location of this logo, nor subsequent Logos.
+    // pub fn set_data(&mut self, new_data: Vec<u8>) {
+    //     self.data = new_data;
+    // }
+    /// Sets data to write in file later.
+    /// Will not update location of this logo, nor subsequent Logos.
     pub fn set_new_image(&mut self, data: Vec<u8>, width: u32, height: u32) {
         self.data = data;
         self.width = width;
         self.height = height;
     }
 
+    /// Set new location of the logo in the binary file.
     pub fn set_location(&mut self, location: usize) {
         self.location = location;
     }
 }
 
+/// Represents the data inside a binary boot logo file.
 #[derive(Debug)]
 pub struct LogoBin {
     family: DeviceFamily,
@@ -71,8 +78,9 @@ pub struct LogoBin {
 }
 
 impl LogoBin {
-    /// Returns LogoBin from boot logo file (read-only recommended)
-    /// May change the seek position of the file
+    /// Returns LogoBin from boot logo file (read-only recommended).
+    ///
+    /// May change the seek position of the file.
     pub fn from_file<F: Read + Seek>(file: &mut F, family: DeviceFamily) -> Result<LogoBin, LogoError> {
         match family {
             DeviceFamily::MotoKitKat => moto_kit_kat::logo_bin_from_file(file),
@@ -80,7 +88,8 @@ impl LogoBin {
         }
     }
 
-    /// This method does the post-processing stuff needed after replacing logos, like calculating new "locations" for the logos in the file
+    /// This method does the post-processing stuff needed after replacing logos,
+    /// like calculating new "locations" for the logos in the file
     pub fn process_changes(&mut self) {
         match self.family {
             DeviceFamily::MotoKitKat => moto_kit_kat::process_changes(self),
@@ -88,6 +97,7 @@ impl LogoBin {
         }
     }
 
+    /// Returns a reference to the logo struct with the specified id.
     pub fn logo_with_id(&self, id: &str) -> Option<&Logo> {
         for logo in &self.logos {
             if logo.identifier() == id {
@@ -97,6 +107,7 @@ impl LogoBin {
         None
     }
 
+    /// Returns a mutable reference to the logo struct with the specified id.
     pub fn mut_logo_with_id(&mut self, id: &str) -> Option<&mut Logo> {
         for logo in self.logos.iter_mut() {
             if logo.identifier() == id {
@@ -106,7 +117,8 @@ impl LogoBin {
         None
     }
 
-    /// Extension should be all lowercase already
+    /// Extracts logo with specified id to anything that implements Write and Seek.
+    /// Extension should be all lowercase already.
     pub fn extract_logo_with_id_to_file<F: Write + Seek>(&self, id: &str, mut outfile: F, extension: &str) -> Result<(), LogoError> {
         let img = self.decode_logo_with_id(id)?;
         let format = match &extension[..] {
@@ -130,11 +142,13 @@ impl LogoBin {
 
     }
 
+    /// Returns the decoded logo with the specified id in the image::DynamicImage format.
     pub fn decode_logo_with_id(&self, id: &str) -> Result<image::DynamicImage, LogoError> {
         let logo = self.logo_with_id(id).ok_or(WrongIdentifier)?;
         codec::decode(self.family, logo.data(), logo.width(), logo.height())
     }
 
+    /// Encodes the image and replaces the logo with the specified id with it.
     pub fn encode_to_logo_with_id(&mut self, img: image::DynamicImage, id: &str) -> Result<(), LogoError> {
         let width = img.dimensions().0;
         let height = img.dimensions().1;
@@ -144,23 +158,28 @@ impl LogoBin {
         Ok(())
     }
 
+    /// Returns DeviceFamily of the logo binary.
     pub fn family(&self) -> DeviceFamily {
         self.family
     }
 
+    /// Returns MIME type/magic number of the logo binary.
     pub fn mime(&self) -> &str {
         &self.mime[..]
     }
 
+    /// Return a reference to the Vector with all logos.
     pub fn logos(&self) -> &Vec<Logo> {
         &self.logos
     }
 
+    /// Returns the size of the header of the binary file.
     pub fn header_size(&self) -> usize {
         self.header_size
     }
 
     // Seek is only used to assert_eq! sizes (header size and file size) for now
+    /// Writes the logo binary to anything that implements Write and Seek.
     pub fn write_to_file<F: Write + Seek>(self, new_file: F) -> Result<(), LogoError> {
         match self.family {
             DeviceFamily::MotoKitKat => moto_kit_kat::logo_bin_to_file(self, new_file),
