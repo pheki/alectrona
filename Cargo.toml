@@ -11,6 +11,7 @@ path = "src/main.rs"
 alectrona = { path = "alectrona" }
 clap = "*"
 toml = "*"
+directories = "*"
 
 [profile.test]
 opt-level = 3

@@ -1,13 +1,18 @@
 extern crate alectrona;
 extern crate clap;
 extern crate toml;
+extern crate directories;
 
 use alectrona::{Config, Action, run, DeviceFamily};
 use clap::{Arg, App, SubCommand};
 use std::collections::HashMap;
+use std::io;
+use std::fs;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::prelude::*;
 use toml::Value;
+use directories::ProjectDirs;
 
 use std::str::FromStr;
 
@@ -127,12 +132,35 @@ fn main() {
         },
     };
 
+    let dirs = ProjectDirs::from("", "alectrona", "alectrona");
+    fs::create_dir_all(dirs.config_dir()).ok();
+
     let (device_family, resize) = if let Some(device_str) = matches.value_of("device") {
         // terrible error handling for now.......
+        let devices_path = &dirs.config_dir().join("devices.toml");
         let mut devices_string = String::new();
-        File::open("devices.toml").expect("Could not open devices.toml")
-            .read_to_string(&mut devices_string).expect("Could not read devices.toml");
-        let devices = Value::from_str(&devices_string).expect("invalid devices.toml");
+        let devices_str = match File::open(devices_path) {
+            Ok(mut file) => {
+                file.read_to_string(&mut devices_string).expect("Could not read devices.toml");
+                &devices_string
+            },
+            Err(ref err) if err.kind() == io::ErrorKind::NotFound => {
+                let mut file = OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(devices_path)
+                    .expect("Could not create devices.toml file");
+                let contents = include_str!("devices.toml");
+                file.write_all(contents.as_bytes()).expect("Could not write to devices.toml");
+                contents
+            },
+            Err(_) => {
+                panic!("IO error when trying to open devices.toml");
+            } ,
+        };
+
+
+        let devices = Value::from_str(devices_str).expect("invalid devices.toml");
         let device = devices.get(device_str).expect("UnsupportedDevice");
 
         let device_family = {
@@ -140,6 +168,7 @@ fn main() {
                     device["family"].as_str().expect("device.family is not a string")
                 ).expect("device family not supported")
         };
+
         let resize = if matches.occurrences_of("resize") > 0 {
             Some((device["width"].as_integer().unwrap() as u32,
                 device["height"].as_integer().unwrap() as u32
@@ -147,6 +176,7 @@ fn main() {
         } else {
             None
         };
+
         (Some(device_family), resize)
     } else {
         (None, None)
