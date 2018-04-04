@@ -25,7 +25,7 @@ alectrona is a boot logo manipulator programmed in rust that was created with th
 
 # Installation Steps
 
-For now, to install you need cargo (which comes with rustup). Just follow the installation steps at https://rustup.rs/ and then run ```cargo install https://github.com/pheki/alectrona.git```.
+For now, to install you need cargo (which comes with rustup). Just follow the installation steps at https://rustup.rs/ and then run ```cargo install --git https://github.com/pheki/alectrona.git```.
 
 Make sure you have rust's bin folder ($HOME/.cargo/bin) on your path.
 
