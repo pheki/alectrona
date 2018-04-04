@@ -75,6 +75,8 @@ pub struct LogoBin {
     // is it useful to save header_size?
     header_size: usize,
     logos: Vec<Logo>,
+    // used to indicate whether any of the logos have been modified, so process_changes is executed before writing
+    inconsistent: bool,
 }
 
 impl LogoBin {
@@ -88,8 +90,10 @@ impl LogoBin {
         }
     }
 
-    /// This method does the post-processing stuff needed after replacing logos,
-    /// like calculating new "locations" for the logos in the file
+    /// This method is used internally, it does the post-processing stuff needed after replacing logos,
+    /// like calculating new "locations" for the logos in the file.
+    /// 
+    /// It is not intended to be public, but it's used in tests, which are all organized as integration tests for now.
     pub fn process_changes(&mut self) {
         match self.family {
             DeviceFamily::MotoKitKat => moto_kit_kat::process_changes(self),
@@ -108,9 +112,12 @@ impl LogoBin {
     }
 
     /// Returns a mutable reference to the logo struct with the specified id.
+    /// 
+    /// Also sets a flag to make all internal logo locations be recalculated before writing the file.
     pub fn mut_logo_with_id(&mut self, id: &str) -> Option<&mut Logo> {
         for logo in self.logos.iter_mut() {
             if logo.identifier() == id {
+                self.inconsistent = true;
                 return Some(logo);
             }
         }
@@ -180,7 +187,10 @@ impl LogoBin {
 
     // Seek is only used to assert_eq! sizes (header size and file size) for now
     /// Writes the logo binary to anything that implements Write and Seek.
-    pub fn write_to_file<F: Write + Seek>(self, new_file: F) -> Result<(), LogoError> {
+    pub fn write_to_file<F: Write + Seek>(mut self, new_file: F) -> Result<(), LogoError> {
+        if self.inconsistent {
+            self.process_changes();
+        }
         match self.family {
             DeviceFamily::MotoKitKat => moto_kit_kat::logo_bin_to_file(self, new_file),
             DeviceFamily::OnePlus3 => one_plus_3::logo_bin_to_file(self, new_file),

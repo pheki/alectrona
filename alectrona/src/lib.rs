@@ -124,7 +124,6 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
                 };
                 logo_bin.encode_to_logo_with_id(img, &id)?;
             }
-            logo_bin.process_changes();
 
             let outpath = Path::new(&outfilename);
             let outfile = create_file(outpath, config.overwrite)?;

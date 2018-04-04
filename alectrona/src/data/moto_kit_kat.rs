@@ -76,6 +76,7 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         mime,
         header_size: size,
         logos,
+        inconsistent: false,
     })
 }
 
