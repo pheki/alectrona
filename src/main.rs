@@ -32,6 +32,7 @@ fn main() {
             .short("d")
             .long("device")
             .value_name("DEVICE_CODENAME")
+            .required(true)
             .help("Codename of the device codename correspondent to the binary boot logo file")
             .takes_value(true)
         )
@@ -179,7 +180,7 @@ fn main() {
 
         (Some(device_family), resize)
     } else {
-        (None, None)
+        panic!("Device should be required, please report this error")
     };
 
     // println!("{:?}", device);
