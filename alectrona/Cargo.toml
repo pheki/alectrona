@@ -7,8 +7,11 @@ authors = ["bilko"]
 default = ["jpeg"]
 # jpeg is reexported for now as it needs multithreading support (image doesn't reexport the crayon feature of jpeg-decoder)
 jpeg = ["image/jpeg"]
+serde_ = ["serde", "serde_derive"]
 
 [dependencies]
+serde = {version = "*", optional = true}
+serde_derive = {version = "*", optional = true}
 
 [dependencies.image]
 version = "*"

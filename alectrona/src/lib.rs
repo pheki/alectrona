@@ -3,6 +3,13 @@
 
 extern crate image;
 
+#[cfg(feature = "serde_")]
+extern crate serde;
+
+#[cfg(feature = "serde_")]
+#[macro_use]
+extern crate serde_derive;
+
 /// This module contains data structures for the binary files and the logos inside them.
 pub mod data;
 mod codec;
@@ -24,6 +31,7 @@ use std::path::Path;
 use image::FilterType;
 use image::GenericImage;
 /// DeviceFamily of the device related to the boot logo binary.
+#[cfg_attr(feature = "serde_", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug)]
 pub enum DeviceFamily {
     /// This family is for Motorola devices that came with Android KitKat (4.4) or newer installed.
