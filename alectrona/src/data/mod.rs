@@ -5,13 +5,12 @@ extern crate image;
 use image::GenericImage;
 use std::io;
 
-use std::io::prelude::*;
 use std::fmt;
+use std::io::prelude::*;
 
-
+use DeviceFamily;
 use LogoError;
 use LogoError::*;
-use DeviceFamily;
 
 use codec;
 
@@ -24,7 +23,6 @@ pub struct Logo {
     height: u32,
     data: Vec<u8>,
 }
-
 
 impl Logo {
     /// Gets the identifier of the logo.
@@ -83,7 +81,10 @@ impl LogoBin {
     /// Returns LogoBin from boot logo file (read-only recommended).
     ///
     /// May change the seek position of the file.
-    pub fn from_file<F: Read + Seek>(file: &mut F, family: DeviceFamily) -> Result<LogoBin, LogoError> {
+    pub fn from_file<F: Read + Seek>(
+        file: &mut F,
+        family: DeviceFamily,
+    ) -> Result<LogoBin, LogoError> {
         match family {
             DeviceFamily::MotoKitKat => moto_kit_kat::logo_bin_from_file(file),
             DeviceFamily::OnePlus3 => one_plus_3::logo_bin_from_file(file),
@@ -92,7 +93,7 @@ impl LogoBin {
 
     /// This method is used internally, it does the post-processing stuff needed after replacing logos,
     /// like calculating new "locations" for the logos in the file.
-    /// 
+    ///
     /// It is not intended to be public, but it's used in tests, which are all organized as integration tests for now.
     pub fn process_changes(&mut self) {
         match self.family {
@@ -112,7 +113,7 @@ impl LogoBin {
     }
 
     /// Returns a mutable reference to the logo struct with the specified id.
-    /// 
+    ///
     /// Also sets a flag to make all internal logo locations be recalculated before writing the file.
     pub fn mut_logo_with_id(&mut self, id: &str) -> Option<&mut Logo> {
         for logo in self.logos.iter_mut() {
@@ -126,27 +127,30 @@ impl LogoBin {
 
     /// Extracts logo with specified id to anything that implements Write and Seek.
     /// Extension should be all lowercase already.
-    pub fn extract_logo_with_id_to_file<F: Write + Seek>(&self, id: &str, mut outfile: F, extension: &str) -> Result<(), LogoError> {
+    pub fn extract_logo_with_id_to_file<F: Write + Seek>(
+        &self,
+        id: &str,
+        mut outfile: F,
+        extension: &str,
+    ) -> Result<(), LogoError> {
         let img = self.decode_logo_with_id(id)?;
         let format = match &extension[..] {
             "ico" => image::ICO,
-            "jpg" |
-            "jpeg" => image::JPEG,
-            "png"  => image::PNG,
+            "jpg" | "jpeg" => image::JPEG,
+            "png" => image::PNG,
             "bmp" => image::BMP,
             format => {
                 return Err(IOError(io::Error::new(
                     io::ErrorKind::InvalidInput,
                     &format!("Unsupported image format image/{:?}", format)[..],
                 )))
-            },
+            }
         };
         match img.save(&mut outfile, format) {
             Ok(()) => Ok(()),
             Err(image::ImageError::IoError(err)) => Err(IOError(err)),
             Err(err) => Err(ImageError(err)),
         }
-
     }
 
     /// Returns the decoded logo with the specified id in the image::DynamicImage format.
@@ -156,7 +160,11 @@ impl LogoBin {
     }
 
     /// Encodes the image and replaces the logo with the specified id with it.
-    pub fn encode_to_logo_with_id(&mut self, img: image::DynamicImage, id: &str) -> Result<(), LogoError> {
+    pub fn encode_to_logo_with_id(
+        &mut self,
+        img: image::DynamicImage,
+        id: &str,
+    ) -> Result<(), LogoError> {
         let width = img.dimensions().0;
         let height = img.dimensions().1;
         let data = codec::encode(self.family, img);
@@ -196,28 +204,35 @@ impl LogoBin {
             DeviceFamily::OnePlus3 => one_plus_3::logo_bin_to_file(self, new_file),
         }
     }
-
-
 }
-
 
 impl fmt::Display for Logo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}, location: {}, size: {}, width: {}, height: {}",
-               self.identifier, self.location, self.data().len(), self.width, self.height)
+        write!(
+            f,
+            "{}, location: {}, size: {}, width: {}, height: {}",
+            self.identifier,
+            self.location,
+            self.data().len(),
+            self.width,
+            self.height
+        )
     }
 }
 
 impl fmt::Display for LogoBin {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "mime: {}\nheader size: {}\n", self.mime, self.header_size)?;
+        write!(
+            f,
+            "mime: {}\nheader size: {}\n",
+            self.mime, self.header_size
+        )?;
         for logo in &self.logos {
             write!(f, "{}\n", logo)?;
         }
         Ok(())
     }
 }
-
 
 // into must have at least target_size
 fn usize_to_little_endian(data: usize, into: &mut [u8]) {
@@ -234,14 +249,15 @@ fn u32_to_little_endian(data: u32, into: &mut [u8]) {
     });
 }
 
-
 // to be used in iter.fold() with (0, 0) as starting values
 fn little_endian_to_usize((acc, i): (usize, usize), b: &u8) -> (usize, usize) {
-    (acc + ((*b as usize) << (i*8)), i+1)
+    (acc + ((*b as usize) << (i * 8)), i + 1)
 }
 
 // // this is better
 fn little_endian_to_u32(little_endian: [u8; 4]) -> u32 {
-    let (ret, _) = little_endian.iter().fold((0, 0), |(acc, i), b| (acc + ((*b as u32) << (i*8)), i+1));
+    let (ret, _) = little_endian.iter().fold((0, 0), |(acc, i), b| {
+        (acc + ((*b as u32) << (i * 8)), i + 1)
+    });
     ret
 }

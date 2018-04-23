@@ -6,12 +6,15 @@ use LogoError::*;
 const MAX_REPEATED: u8 = 255;
 
 pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImage, LogoError> {
-    let expected_image_size = (width*height*3) as usize;
+    let expected_image_size = (width * height * 3) as usize;
     let mut buffer: Vec<u8> = Vec::with_capacity(expected_image_size);
 
     // necessary while step isn't stabilized
     let mut skip = false;
-    for (&byte, &quantity) in data.iter().zip(data.iter().skip(1)).filter(|_| {skip = !skip; skip}) {
+    for (&byte, &quantity) in data.iter().zip(data.iter().skip(1)).filter(|_| {
+        skip = !skip;
+        skip
+    }) {
         for _ in 0..quantity {
             buffer.push(byte);
         }
@@ -20,20 +23,14 @@ pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImag
         return Err(WrongImageSize);
     }
     // bgr to rgb
-    for i in 0..buffer.len()/3 {
-        let temp = buffer[i*3];
-        buffer[i*3] = buffer[i*3+2];
-        buffer[i*3+2] = temp;
+    for i in 0..buffer.len() / 3 {
+        let temp = buffer[i * 3];
+        buffer[i * 3] = buffer[i * 3 + 2];
+        buffer[i * 3 + 2] = temp;
     }
-    Ok(
-        image::DynamicImage::ImageRgb8(
-            image::ImageBuffer::from_raw(
-                width,
-                height,
-                buffer,
-            ).unwrap()
-        )
-    )
+    Ok(image::DynamicImage::ImageRgb8(
+        image::ImageBuffer::from_raw(width, height, buffer).unwrap(),
+    ))
 }
 
 pub fn encode(img: image::DynamicImage) -> Vec<u8> {
@@ -62,8 +59,7 @@ pub fn encode(img: image::DynamicImage) -> Vec<u8> {
             if byte == last_byte {
                 // queue_size = queue_size.wrapping_add(1);
                 queue_size += 1;
-            }
-            else {
+            } else {
                 for _ in 0..(queue_size / MAX_REPEATED as u32) {
                     encoded.push(last_byte);
                     encoded.push(MAX_REPEATED);

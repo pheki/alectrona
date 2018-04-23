@@ -1,11 +1,10 @@
+use std::borrow::Cow;
 use std::io::prelude::*;
 use std::io::SeekFrom;
-use std::borrow::Cow;
 
 use DeviceFamily::OnePlus3;
 
 use data::*;
-
 
 const HEADER_SIZE: usize = 4096;
 const NAME_SIZE: usize = 64;
@@ -16,8 +15,7 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
     file.seek(SeekFrom::Start(0))?;
     let mut mime = [0u8; 8];
     file.read_exact(&mut mime)?;
-    let mime = String::from_utf8_lossy(&mime)
-        .into_owned();
+    let mime = String::from_utf8_lossy(&mime).into_owned();
     if &mime[..] != MIME {
         return Err(WrongImageMagicNumber);
     }
@@ -60,14 +58,18 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         assert!(if size != 0 {some_number == 1} else {some_number == 0},
             "your logo file seems to be different than the ones used for testing, please report it to the developer");
 
-        file.seek(SeekFrom::Current(28*4))?;
+        file.seek(SeekFrom::Current(28 * 4))?;
 
         let mut _name = [0u8; 64];
         file.read_exact(&mut _name)?;
 
         let mut identifier = [0u8; 288];
         file.read_exact(&mut identifier)?;
-        let identifier: Vec<u8> = identifier.into_iter().take_while(|&&b| b != 0).map(|&b| b).collect();
+        let identifier: Vec<u8> = identifier
+            .into_iter()
+            .take_while(|&&b| b != 0)
+            .map(|&b| b)
+            .collect();
         let identifier = match String::from_utf8_lossy(&identifier[..]) {
             Cow::Borrowed(b) => b.to_owned(),
             Cow::Owned(b) => b,
@@ -89,8 +91,6 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
             height,
             data,
         })
-
-
     }
 
     Ok(LogoBin {
@@ -100,7 +100,6 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         logos,
         inconsistent: false,
     })
-
 }
 
 pub fn process_changes(logo_bin: &mut LogoBin) {
@@ -115,14 +114,17 @@ pub fn process_changes(logo_bin: &mut LogoBin) {
     }
 }
 
-pub fn logo_bin_to_file<F: Write + Seek>(logo_bin: LogoBin, mut new_file: F) -> Result<(), LogoError> {
+pub fn logo_bin_to_file<F: Write + Seek>(
+    logo_bin: LogoBin,
+    mut new_file: F,
+) -> Result<(), LogoError> {
     for logo in logo_bin.logos() {
         let fill_data = vec![0u8; logo.location() - new_file.seek(SeekFrom::Current(0))? as usize];
         new_file.write_all(&fill_data[..])?;
 
         let has_data = logo.data.len() != 0;
         // writes mime type
-        let buf = if has_data {b"SPLASH!!"} else {&[0u8; 8]};
+        let buf = if has_data { b"SPLASH!!" } else { &[0u8; 8] };
         new_file.write_all(&buf[..])?;
         let buf = [0u8; 24];
         new_file.write_all(&buf[..])?;
@@ -138,7 +140,7 @@ pub fn logo_bin_to_file<F: Write + Seek>(logo_bin: LogoBin, mut new_file: F) -> 
         new_file.write_all(&buf[..])?;
 
         // writes "some_number"
-        let some_number = if has_data {1} else {0};
+        let some_number = if has_data { 1 } else { 0 };
         u32_to_little_endian(some_number, &mut buf);
         new_file.write_all(&buf[..])?;
 
@@ -160,7 +162,12 @@ pub fn logo_bin_to_file<F: Write + Seek>(logo_bin: LogoBin, mut new_file: F) -> 
 
         // guess name from file properties...
         let name = if has_data {
-            format!("{}_{}_{}_result.raw", logo.identifier(), logo.width(), logo.height).into_bytes()
+            format!(
+                "{}_{}_{}_result.raw",
+                logo.identifier(),
+                logo.width(),
+                logo.height
+            ).into_bytes()
         } else {
             Vec::new()
         };
@@ -173,7 +180,11 @@ pub fn logo_bin_to_file<F: Write + Seek>(logo_bin: LogoBin, mut new_file: F) -> 
         let identifier = vec![0u8; IDENTIFIER_SIZE - name.len()];
         new_file.write_all(&identifier[..])?;
 
-        let fill_header = vec![0u8; HEADER_SIZE - (new_file.seek(SeekFrom::Current(0))? as usize - logo.location())];
+        let fill_header =
+            vec![
+                0u8;
+                HEADER_SIZE - (new_file.seek(SeekFrom::Current(0))? as usize - logo.location())
+            ];
         new_file.write_all(&fill_header)?;
 
         new_file.write_all(&logo.data())?;

@@ -10,19 +10,19 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+mod codec;
 /// This module contains data structures for the binary files and the logos inside them.
 pub mod data;
-mod codec;
 
 pub use data::LogoBin;
 
 use std::collections::HashMap;
-use std::fs::File;
-use std::io;
-use std::fmt;
-use std::fs::OpenOptions;
-use std::error::Error;
 use std::convert;
+use std::error::Error;
+use std::fmt;
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::io;
 use std::str::FromStr;
 use LogoError::*;
 
@@ -85,22 +85,21 @@ pub struct Config {
 
 /// Runs the program, based on the config struct.
 pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
-
-
     let mut infile = File::open(config.input_filename)?;
     let device_family = config.device_family.unwrap_or(DeviceFamily::MotoKitKat);
     let mut logo_bin = LogoBin::from_file(&mut infile, device_family)?;
-
 
     match config.action {
         Action::GetLogoBin => return Ok(Some(logo_bin)),
         Action::Extract(ref id, ref outfilename) => {
             let outpath = Path::new(&outfilename);
             let outfile = create_file(&outpath, config.overwrite)?;
-            let extension = outpath.extension().and_then(|s| s.to_str())
-                                   .map_or("".to_string(), |s| s.to_lowercase());
+            let extension = outpath
+                .extension()
+                .and_then(|s| s.to_str())
+                .map_or("".to_string(), |s| s.to_lowercase());
             logo_bin.extract_logo_with_id_to_file(id, outfile, &extension)?;
-        },
+        }
         Action::ExtractAll(ref outdirectoryname) => {
             let directory_path = Path::new(outdirectoryname);
             if !directory_path.is_dir() {
@@ -111,15 +110,21 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
                     continue;
                 }
                 let id = logo.identifier();
-                let mut outpath = directory_path.join(Path::new(id).file_name().unwrap_or("invalid_filename".as_ref()));
+                let mut outpath = directory_path.join(
+                    Path::new(id)
+                        .file_name()
+                        .unwrap_or("invalid_filename".as_ref()),
+                );
                 assert!(outpath.set_extension("png"));
                 let outfile = create_file(&outpath, config.overwrite)?;
-                let extension = outpath.extension().and_then(|s| s.to_str())
-                                       .map_or("".to_string(), |s| s.to_lowercase());
+                let extension = outpath
+                    .extension()
+                    .and_then(|s| s.to_str())
+                    .map_or("".to_string(), |s| s.to_lowercase());
 
                 logo_bin.extract_logo_with_id_to_file(id, outfile, &extension)?;
             }
-        },
+        }
         Action::Replace(replace_map, outfilename) => {
             for (id, image_location) in replace_map.into_iter() {
                 let mut img = image::open(image_location).expect("Could not open image");
@@ -136,20 +141,13 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
             let outpath = Path::new(&outfilename);
             let outfile = create_file(outpath, config.overwrite)?;
             logo_bin.write_to_file(outfile)?;
-
         }
     }
     Ok(None)
-
 }
 
-
 fn create_file(path: &Path, overwrite: bool) -> Result<File, LogoError> {
-    match OpenOptions::new()
-                      .create_new(true)
-                      .write(true)
-                      .open(path)
-    {
+    match OpenOptions::new().create_new(true).write(true).open(path) {
         Ok(file) => Ok(file),
         Err(ref err) if err.kind() == io::ErrorKind::AlreadyExists => {
             if overwrite {
@@ -157,7 +155,7 @@ fn create_file(path: &Path, overwrite: bool) -> Result<File, LogoError> {
             } else {
                 Err(WouldOverwrite)
             }
-        },
+        }
         Err(err) => Err(IOError(err)),
     }
 }

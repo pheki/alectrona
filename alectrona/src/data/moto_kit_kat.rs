@@ -8,7 +8,6 @@ use std::borrow::Cow;
 use LogoError;
 use LogoError::*;
 
-
 use DeviceFamily::MotoKitKat;
 
 use data::*;
@@ -21,20 +20,18 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
     file.seek(SeekFrom::Start(0))?;
     let mut mime = [0; 9];
     file.read_exact(&mut mime)?;
-    let mime = String::from_utf8_lossy(&mime)
-        .into_owned();
+    let mime = String::from_utf8_lossy(&mime).into_owned();
     if &mime[..] != MIME {
         return Err(WrongImageMagicNumber);
     }
 
     let mut size = [0; 4];
     file.read_exact(&mut size)?;
-    let (size, _) = size.iter().fold( (0, 0), little_endian_to_usize);
+    let (size, _) = size.iter().fold((0, 0), little_endian_to_usize);
 
     // enforces header size
     let mut header = Vec::with_capacity(size);
-    file.take(size as u64 - 13)
-        .read_to_end(&mut header)?;
+    file.take(size as u64 - 13).read_to_end(&mut header)?;
     let mut header = &header[..];
     let mut logos = Vec::new();
     loop {
@@ -45,9 +42,11 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
             _ => (),
         }
 
-
-        let identifier: Vec<u8> = identifier.into_iter().take_while(|&&b| b != 0).map(|&b| b).collect();
-
+        let identifier: Vec<u8> = identifier
+            .into_iter()
+            .take_while(|&&b| b != 0)
+            .map(|&b| b)
+            .collect();
 
         // let identifier = String::from_utf8(identifier).unwrap();
         let identifier = match String::from_utf8_lossy(&identifier[..]) {
@@ -67,9 +66,7 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         let logo = extract_logo(file, location, image_size, identifier)?;
 
         logos.push(logo);
-
     }
-
 
     Ok(LogoBin {
         family: MotoKitKat,
@@ -89,7 +86,10 @@ pub fn process_changes(logo_bin: &mut LogoBin) {
     }
 }
 
-pub fn logo_bin_to_file<F: Write + Seek>(logo_bin: LogoBin, mut new_file: F) -> Result<(), LogoError> {
+pub fn logo_bin_to_file<F: Write + Seek>(
+    logo_bin: LogoBin,
+    mut new_file: F,
+) -> Result<(), LogoError> {
     // writes header only
     // writes mime type
     let buf = b"MotoLogo\0";
@@ -119,7 +119,9 @@ pub fn logo_bin_to_file<F: Write + Seek>(logo_bin: LogoBin, mut new_file: F) -> 
     let mut current_position = logo_bin.header_size();
 
     assert_eq!(
-        new_file.seek(SeekFrom::Current(0)).expect("Could not seek in assert_eq...") as usize,
+        new_file
+            .seek(SeekFrom::Current(0))
+            .expect("Could not seek in assert_eq...") as usize,
         current_position
     );
     // finished writing header
@@ -152,7 +154,12 @@ pub fn logo_bin_to_file<F: Write + Seek>(logo_bin: LogoBin, mut new_file: F) -> 
 }
 
 // returns logo with compressed image data
-fn extract_logo<F: Read + Seek>(file: &mut F, location: usize, size: usize, identifier: String) -> Result<Logo, LogoError> {
+fn extract_logo<F: Read + Seek>(
+    file: &mut F,
+    location: usize,
+    size: usize,
+    identifier: String,
+) -> Result<Logo, LogoError> {
     file.seek(SeekFrom::Start(location as u64))?;
     let mut data_file = file.take(size as u64);
 
@@ -170,7 +177,6 @@ fn extract_logo<F: Read + Seek>(file: &mut F, location: usize, size: usize, iden
     let mut height = [0u8; 2];
     data_file.read_exact(&mut height)?;
     let height = height.iter().fold(0, |acc, &b| (acc << 8) + b as u32);
-
 
     let mut data = Vec::with_capacity(size - LOGO_HEADER_SIZE);
     data_file.read_to_end(&mut data)?;
