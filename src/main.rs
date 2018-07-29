@@ -3,7 +3,7 @@ extern crate clap;
 extern crate directories;
 extern crate toml;
 
-use alectrona::{run, Action, Config, DeviceFamily};
+use alectrona::{Action, Config, DeviceFamily};
 use clap::{App, Arg, SubCommand};
 use directories::ProjectDirs;
 use std::collections::HashMap;
@@ -125,7 +125,7 @@ fn main() {
         }
     };
 
-    let dirs = ProjectDirs::from("", "alectrona", "alectrona");
+    let dirs = ProjectDirs::from("", "alectrona", "alectrona").expect("$HOME is not set");
     fs::create_dir_all(dirs.config_dir()).ok();
 
     let (device_family, resize) = if let Some(device_str) = matches.value_of("device") {
@@ -188,7 +188,7 @@ fn main() {
         overwrite: true,
         resize,
     };
-    match run(config) {
+    match alectrona::run(config) {
         Err(err) => {
             eprintln!("{}", err);
             process::exit(1);
