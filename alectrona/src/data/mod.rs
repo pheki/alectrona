@@ -125,12 +125,13 @@ impl LogoBin {
         None
     }
 
+    // TODO only borrow mutably F
     /// Extracts logo with specified id to anything that implements Write and Seek.
     /// Extension should be all lowercase already.
     pub fn extract_logo_with_id_to_file<F: Write + Seek>(
         &self,
         id: &str,
-        mut outfile: F,
+        outfile: &mut F,
         extension: &str,
     ) -> Result<(), LogoError> {
         let img = self.decode_logo_with_id(id)?;
@@ -146,7 +147,7 @@ impl LogoBin {
                 )))
             }
         };
-        match img.save(&mut outfile, format) {
+        match img.save(outfile, format) {
             Ok(()) => Ok(()),
             Err(image::ImageError::IoError(err)) => Err(IOError(err)),
             Err(err) => Err(ImageError(err)),
@@ -195,7 +196,7 @@ impl LogoBin {
 
     // Seek is only used to assert_eq! sizes (header size and file size) for now
     /// Writes the logo binary to anything that implements Write and Seek.
-    pub fn write_to_file<F: Write + Seek>(mut self, new_file: F) -> Result<(), LogoError> {
+    pub fn write_to_file<F: Write + Seek>(&mut self, new_file: &mut F) -> Result<(), LogoError> {
         if self.inconsistent {
             self.process_changes();
         }

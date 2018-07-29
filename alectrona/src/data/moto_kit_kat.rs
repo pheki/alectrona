@@ -87,8 +87,8 @@ pub fn process_changes(logo_bin: &mut LogoBin) {
 }
 
 pub fn logo_bin_to_file<F: Write + Seek>(
-    logo_bin: LogoBin,
-    mut new_file: F,
+    logo_bin: &LogoBin,
+    new_file: &mut F,
 ) -> Result<(), LogoError> {
     // writes header only
     // writes mime type

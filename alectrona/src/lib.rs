@@ -30,6 +30,7 @@ use std::path::Path;
 
 use image::FilterType;
 use image::GenericImage;
+
 /// DeviceFamily of the device related to the boot logo binary.
 #[cfg_attr(feature = "serde_", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug)]
@@ -93,12 +94,12 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
         Action::GetLogoBin => return Ok(Some(logo_bin)),
         Action::Extract(ref id, ref outfilename) => {
             let outpath = Path::new(&outfilename);
-            let outfile = create_file(&outpath, config.overwrite)?;
+            let mut outfile = create_file(&outpath, config.overwrite)?;
             let extension = outpath
                 .extension()
                 .and_then(|s| s.to_str())
                 .map_or("".to_string(), |s| s.to_lowercase());
-            logo_bin.extract_logo_with_id_to_file(id, outfile, &extension)?;
+            logo_bin.extract_logo_with_id_to_file(id, &mut outfile, &extension)?;
         }
         Action::ExtractAll(ref outdirectoryname) => {
             let directory_path = Path::new(outdirectoryname);
@@ -116,13 +117,13 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
                         .unwrap_or("invalid_filename".as_ref()),
                 );
                 assert!(outpath.set_extension("png"));
-                let outfile = create_file(&outpath, config.overwrite)?;
+                let mut outfile = create_file(&outpath, config.overwrite)?;
                 let extension = outpath
                     .extension()
                     .and_then(|s| s.to_str())
                     .map_or("".to_string(), |s| s.to_lowercase());
 
-                logo_bin.extract_logo_with_id_to_file(id, outfile, &extension)?;
+                logo_bin.extract_logo_with_id_to_file(id, &mut outfile, &extension)?;
             }
         }
         Action::Replace(replace_map, outfilename) => {
@@ -139,8 +140,8 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
             }
 
             let outpath = Path::new(&outfilename);
-            let outfile = create_file(outpath, config.overwrite)?;
-            logo_bin.write_to_file(outfile)?;
+            let mut outfile = create_file(outpath, config.overwrite)?;
+            logo_bin.write_to_file(&mut outfile)?;
         }
     }
     Ok(None)

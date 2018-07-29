@@ -115,8 +115,8 @@ pub fn process_changes(logo_bin: &mut LogoBin) {
 }
 
 pub fn logo_bin_to_file<F: Write + Seek>(
-    logo_bin: LogoBin,
-    mut new_file: F,
+    logo_bin: &mut LogoBin,
+    new_file: &mut F,
 ) -> Result<(), LogoError> {
     for logo in logo_bin.logos() {
         let fill_data = vec![0u8; logo.location() - new_file.seek(SeekFrom::Current(0))? as usize];
