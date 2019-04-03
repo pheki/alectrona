@@ -5,16 +5,15 @@ authors = ["bilko"]
 edition = "2018"
 
 [features]
-default = ["jpeg"]
-# jpeg is reexported for now as it needs multithreading support (image doesn't reexport the crayon feature of jpeg-decoder)
-jpeg = ["image/jpeg"]
+default = ["multithreading"]
+multithreading = ["image/jpeg_rayon"]
 serde_ = ["serde", "serde_derive"]
 
 [dependencies]
-serde = {version = "*", optional = true}
-serde_derive = {version = "*", optional = true}
+serde = {version = "1", optional = true}
+serde_derive = {version = "1", optional = true}
 
 [dependencies.image]
-version = "*"
+version = "0.21"
 default-features = false
-features = ["gif_codec", "ico", "png_codec", "pnm", "ppm", "tga", "tiff", "webp", "bmp", "hdr"] # every default but jpeg
+features = ["gif_codec", "jpeg", "ico", "png_codec", "pnm", "tga", "tiff", "webp", "bmp", "hdr", "dxt"]

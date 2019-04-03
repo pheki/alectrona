@@ -1,18 +1,18 @@
 mod moto_kit_kat;
 mod one_plus_3;
 
-extern crate image;
-use image::GenericImage;
 use std::io;
-
 use std::fmt;
 use std::io::prelude::*;
+
+extern crate image;
+use image::GenericImageView;
 
 use crate::DeviceFamily;
 use crate::LogoError;
 use LogoError::*;
-
 use crate::codec;
+
 
 /// The data of a single logo in a logo binary.
 #[derive(Debug)]
@@ -146,7 +146,7 @@ impl LogoBin {
                 )));
             }
         };
-        match img.save(outfile, format) {
+        match img.write_to(outfile, format) {
             Ok(()) => Ok(()),
             Err(image::ImageError::IoError(err)) => Err(IOError(err)),
             Err(err) => Err(ImageError(err)),

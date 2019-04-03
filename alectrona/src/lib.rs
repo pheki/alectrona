@@ -29,7 +29,7 @@ use LogoError::*;
 use std::path::Path;
 
 use image::FilterType;
-use image::GenericImage;
+use image::GenericImageView;
 
 /// DeviceFamily of the device related to the boot logo binary.
 #[cfg_attr(feature = "serde_", derive(Serialize, Deserialize))]
