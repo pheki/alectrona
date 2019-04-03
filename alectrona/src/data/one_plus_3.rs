@@ -167,7 +167,8 @@ pub fn logo_bin_to_file<F: Write + Seek>(
                 logo.identifier(),
                 logo.width(),
                 logo.height
-            ).into_bytes()
+            )
+            .into_bytes()
         } else {
             Vec::new()
         };

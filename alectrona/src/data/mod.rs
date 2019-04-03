@@ -143,7 +143,7 @@ impl LogoBin {
                 return Err(IOError(io::Error::new(
                     io::ErrorKind::InvalidInput,
                     &format!("Unsupported image format image/{:?}", format)[..],
-                )))
+                )));
             }
         };
         match img.save(outfile, format) {
