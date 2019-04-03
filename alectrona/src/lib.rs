@@ -1,7 +1,7 @@
 #![warn(missing_docs)]
 //! You can find the README at README.md
 
-extern crate image;
+pub extern crate image;
 
 #[cfg(feature = "serde_")]
 extern crate serde;
@@ -136,7 +136,7 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
                         img = img.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3);
                     }
                 };
-                logo_bin.encode_to_logo_with_id(img, &id)?;
+                logo_bin.replace_logo_with_id(img, &id)?;
             }
 
             let outpath = Path::new(&outfilename);
@@ -190,7 +190,7 @@ pub enum LogoError {
 impl std::fmt::Display for LogoError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         writeln!(fmt, "Error: {}", self.description())?;
-        if let Some(cause) = self.cause() {
+        if let Some(cause) = self.source() {
             writeln!(fmt, "Cause: {}", cause)
         } else {
             Ok(())
@@ -214,7 +214,7 @@ impl std::error::Error for LogoError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(Error + 'static)> {
         match *self {
             IOError(ref cause) => Some(cause),
             ImageError(ref cause) => Some(cause),

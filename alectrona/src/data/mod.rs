@@ -125,7 +125,6 @@ impl LogoBin {
         None
     }
 
-    // TODO only borrow mutably F
     /// Extracts logo with specified id to anything that implements Write and Seek.
     /// Extension should be all lowercase already.
     pub fn extract_logo_with_id_to_file<F: Write + Seek>(
@@ -161,7 +160,7 @@ impl LogoBin {
     }
 
     /// Encodes the image and replaces the logo with the specified id with it.
-    pub fn encode_to_logo_with_id(
+    pub fn replace_logo_with_id(
         &mut self,
         img: image::DynamicImage,
         id: &str,
