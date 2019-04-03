@@ -11,17 +11,19 @@ alectrona is a boot logo manipulator programmed in rust that was created with th
 - Device-agnostic: in other words, this utility **should** be able to work with the logo.bin format of any device.
 - Free and open source.
 
-# Known Problems
+# Known Bugs
 
 - For now, none!
 
-# Devices
+# Device Compatibility
 
-| Codename | Name | logo.bin "family" | Tested On Device | "Virtually" tested |
-| --- | --- | --- | --- | --- |
-| harpia | Moto G4 Play | MotoKitKat | Yes | Yes |
-| lux | Moto X Play | MotoKitKat | No | Yes |
-| oneplus3 | OnePlus 3 | OnePlus3 | No | Yes |
+| Codename | Name | logo.bin "family" |
+| --- | --- | --- |
+| harpia | Moto G4 Play | MotoKitKat |
+| lux | Moto X Play | MotoKitKat |
+| oneplus3 | OnePlus 3 | OnePlus3 |
+
+If you need support for a different device, just open an issue!
 
 # Installation Steps
 
@@ -94,6 +96,4 @@ alectrona -d harpia -i logo_original.bin replace logo_boot new_boot_logo.png log
 
 # Tests
 
-Some tests are realized with boot logos from other devices, but as the distribution of them might not be legal, I won't publish the logos or the tests:
-
-(tests to be documented here)
+As automated tests depend on the original logo.bin found on devices, they won't be published here for legal reasons. But the main tests are basically sanity tests which verify testing if encoding / decoding is generates the same files.
