@@ -1,0 +1,8 @@
+/target/
+**/*.rs.bk
+alectrona/src/cemitery.rs
+alectrona/src/debug.rs
+temp
+/alectrona/tests
+/alectrona/txts
+.DS_Store
