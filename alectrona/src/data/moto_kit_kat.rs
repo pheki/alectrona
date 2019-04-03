@@ -13,7 +13,7 @@ use DeviceFamily::MotoKitKat;
 use crate::data::*;
 
 const LOGO_HEADER_SIZE: usize = 8 + 2 + 2;
-const MIME: &'static str = "MotoLogo\0";
+const MIME: &str = "MotoLogo\0";
 
 // there are lots of constants inlined, should be consts...
 pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoError> {
@@ -43,9 +43,9 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         }
 
         let identifier: Vec<u8> = identifier
-            .into_iter()
+            .iter()
             .take_while(|&&b| b != 0)
-            .map(|&b| b)
+            .cloned()
             .collect();
 
         // let identifier = String::from_utf8(identifier).unwrap();
@@ -146,7 +146,7 @@ pub fn logo_bin_to_file<F: Write + Seek>(
     }
 
     let filesize = new_file.seek(SeekFrom::End(0))?;
-    if filesize > 4194304 {
+    if filesize > 4_194_304 {
         Err(TooBig)
     } else {
         Ok(())

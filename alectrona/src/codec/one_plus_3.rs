@@ -24,9 +24,7 @@ pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImag
     }
     // bgr to rgb
     for i in 0..buffer.len() / 3 {
-        let temp = buffer[i * 3];
-        buffer[i * 3] = buffer[i * 3 + 2];
-        buffer[i * 3 + 2] = temp;
+        buffer.swap(i * 3, i * 3 + 2);
     }
     Ok(image::DynamicImage::ImageRgb8(
         image::ImageBuffer::from_raw(width, height, buffer).unwrap(),

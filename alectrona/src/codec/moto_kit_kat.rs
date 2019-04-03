@@ -75,7 +75,7 @@ fn encode_row(pixels: &[&image::Rgb<u8>], encoded: &mut Vec<u8>) {
     let mut repeats: Vec<Range<usize>> = Vec::new();
     let mut start: Option<usize> = None;
     let mut last_pix: Option<&image::Rgb<u8>> = None;
-    for (i, pixel) in pixels.iter().map(|x| *x).enumerate() {
+    for (i, pixel) in pixels.iter().cloned().enumerate() {
         if let Some(last_pixel) = last_pix {
             match start {
                 Some(start_pos) => {

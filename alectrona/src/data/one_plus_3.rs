@@ -9,7 +9,7 @@ use crate::data::*;
 const HEADER_SIZE: usize = 4096;
 const NAME_SIZE: usize = 64;
 const IDENTIFIER_SIZE: usize = 288;
-const MIME: &'static str = "SPLASH!!";
+const MIME: &str = "SPLASH!!";
 
 pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoError> {
     file.seek(SeekFrom::Start(0))?;
@@ -66,9 +66,9 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         let mut identifier = [0u8; 288];
         file.read_exact(&mut identifier)?;
         let identifier: Vec<u8> = identifier
-            .into_iter()
+            .iter()
             .take_while(|&&b| b != 0)
-            .map(|&b| b)
+            .cloned()
             .collect();
         let identifier = match String::from_utf8_lossy(&identifier[..]) {
             Cow::Borrowed(b) => b.to_owned(),
@@ -122,7 +122,7 @@ pub fn logo_bin_to_file<F: Write + Seek>(
         let fill_data = vec![0u8; logo.location() - new_file.seek(SeekFrom::Current(0))? as usize];
         new_file.write_all(&fill_data[..])?;
 
-        let has_data = logo.data.len() != 0;
+        let has_data = !logo.data.is_empty();
         // writes mime type
         let buf = if has_data { b"SPLASH!!" } else { &[0u8; 8] };
         new_file.write_all(&buf[..])?;
@@ -193,7 +193,7 @@ pub fn logo_bin_to_file<F: Write + Seek>(
 
     // checks if file is larger than 16 MiB
     let filesize = new_file.seek(SeekFrom::End(0))?;
-    if filesize > 16777220 {
+    if filesize > 16_777_220 {
         Err(TooBig)
     } else {
         Ok(())

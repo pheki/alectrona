@@ -228,7 +228,7 @@ impl fmt::Display for LogoBin {
             self.mime, self.header_size
         )?;
         for logo in &self.logos {
-            write!(f, "{}\n", logo)?;
+            writeln!(f, "{}", logo)?;
         }
         Ok(())
     }
@@ -236,14 +236,14 @@ impl fmt::Display for LogoBin {
 
 // into must have at least target_size
 fn usize_to_little_endian(data: usize, into: &mut [u8]) {
-    (0..into.len()).into_iter().fold(data, |acc, i| {
+    (0..into.len()).fold(data, |acc, i| {
         into[i] = acc as u8;
         acc >> 8
     });
 }
 
 fn u32_to_little_endian(data: u32, into: &mut [u8]) {
-    (0..into.len()).into_iter().fold(data, |acc, i| {
+    (0..into.len()).fold(data, |acc, i| {
         into[i] = acc as u8;
         acc >> 8
     });

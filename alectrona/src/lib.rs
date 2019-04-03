@@ -152,7 +152,7 @@ fn create_file(path: &Path, overwrite: bool) -> Result<File, LogoError> {
         Ok(file) => Ok(file),
         Err(ref err) if err.kind() == io::ErrorKind::AlreadyExists => {
             if overwrite {
-                File::create(path).map_err(|err| IOError(err))
+                File::create(path).map_err(IOError)
             } else {
                 Err(WouldOverwrite)
             }
