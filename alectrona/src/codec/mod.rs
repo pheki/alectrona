@@ -1,7 +1,7 @@
 extern crate image;
 
 use super::DeviceFamily;
-use LogoError;
+use crate::LogoError;
 
 mod moto_kit_kat;
 mod one_plus_3;

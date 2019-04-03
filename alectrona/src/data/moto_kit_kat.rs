@@ -5,12 +5,12 @@ use std::io::SeekFrom;
 
 use std::borrow::Cow;
 
-use LogoError;
+use crate::LogoError;
 use LogoError::*;
 
 use DeviceFamily::MotoKitKat;
 
-use data::*;
+use crate::data::*;
 
 const LOGO_HEADER_SIZE: usize = 8 + 2 + 2;
 const MIME: &'static str = "MotoLogo\0";
@@ -135,10 +135,10 @@ pub fn logo_bin_to_file<F: Write + Seek>(
         current_position += padding_space;
         // write image data
         new_file.write_all("MotoRun\0".as_bytes())?;
-        let mut buf = [(logo.width() >> 8) as u8, logo.width() as u8];
+        let buf = [(logo.width() >> 8) as u8, logo.width() as u8];
         new_file.write_all(&buf)?;
 
-        let mut buf = [(logo.height() >> 8) as u8, logo.height() as u8];
+        let buf = [(logo.height() >> 8) as u8, logo.height() as u8];
         new_file.write_all(&buf)?;
 
         new_file.write_all(logo.data())?;

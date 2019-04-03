@@ -1,6 +1,6 @@
 extern crate image;
 
-use LogoError;
+use crate::LogoError;
 use LogoError::*;
 
 const MAX_REPEATED: u8 = 255;

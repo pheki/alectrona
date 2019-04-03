@@ -2,7 +2,7 @@ extern crate image;
 
 use image::GenericImage;
 use std::ops::Range;
-use LogoError;
+use crate::LogoError;
 use LogoError::*;
 
 /// Decodes image data for harpia boot logo

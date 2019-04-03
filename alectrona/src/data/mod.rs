@@ -8,11 +8,11 @@ use std::io;
 use std::fmt;
 use std::io::prelude::*;
 
-use DeviceFamily;
-use LogoError;
+use crate::DeviceFamily;
+use crate::LogoError;
 use LogoError::*;
 
-use codec;
+use crate::codec;
 
 /// The data of a single logo in a logo binary.
 #[derive(Debug)]

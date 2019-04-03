@@ -2,9 +2,9 @@ use std::borrow::Cow;
 use std::io::prelude::*;
 use std::io::SeekFrom;
 
-use DeviceFamily::OnePlus3;
+use crate::DeviceFamily::OnePlus3;
 
-use data::*;
+use crate::data::*;
 
 const HEADER_SIZE: usize = 4096;
 const NAME_SIZE: usize = 64;
