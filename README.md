@@ -19,6 +19,8 @@ alectrona is a boot logo manipulator programmed in rust that was created with th
 
 | Codename | Name | logo.bin "family" |
 | --- | --- | --- |
+| falcon | Moto G | MotoKitKat |
+| athene | Moto G4 / Moto G4 Plus | MotoKitKat |
 | harpia | Moto G4 Play | MotoKitKat |
 | lux | Moto X Play | MotoKitKat |
 | oneplus3 | OnePlus 3 | OnePlus3 |

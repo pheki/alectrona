@@ -9,7 +9,6 @@ use directories::ProjectDirs;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
-use std::fs::OpenOptions;
 use std::io;
 use std::io::prelude::*;
 use toml::Value;
@@ -139,15 +138,7 @@ fn main() {
                 &devices_string
             }
             Err(ref err) if err.kind() == io::ErrorKind::NotFound => {
-                let mut file = OpenOptions::new()
-                    .write(true)
-                    .create_new(true)
-                    .open(devices_path)
-                    .expect("Could not create devices.toml file");
-                let contents = include_str!("devices.toml");
-                file.write_all(contents.as_bytes())
-                    .expect("Could not write to devices.toml");
-                contents
+                alectrona::DEVICES_TOML
             }
             Err(_) => {
                 panic!("IO error when trying to open devices.toml");

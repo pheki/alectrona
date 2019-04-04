@@ -31,6 +31,9 @@ use std::path::Path;
 use image::FilterType;
 use image::GenericImageView;
 
+/// Default devices.toml file with all known devices.
+pub static DEVICES_TOML: &str = include_str!("devices.toml");
+
 /// DeviceFamily of the device related to the boot logo binary.
 #[cfg_attr(feature = "serde_", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug)]
