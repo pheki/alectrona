@@ -33,7 +33,7 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
     // that the first byte would be repeated 0 times
     let mut buffer = [0u8; 2];
     let mut header_size: Option<usize> = None;
-    for position in (0x0..0x10).map(|o| 0x100 + o*0x100) {
+    for position in (0x0..0x10).map(|o| 0x100 + o * 0x100) {
         file.seek(SeekFrom::Start(position))?;
         file.read_exact(&mut buffer)?;
         if buffer[1] != 0 {
@@ -117,7 +117,9 @@ pub fn process_changes(logo_bin: &mut LogoBin) {
     for logo in logo_bin.logos.iter_mut() {
         let location = match last_used {
             None => 0,
-            Some(last_used) => last_used + (logo_bin.header_size - (last_used % logo_bin.header_size)),
+            Some(last_used) => {
+                last_used + (logo_bin.header_size - (last_used % logo_bin.header_size))
+            }
         };
         logo.set_location(location);
         last_used = Some(location + logo_bin.header_size + logo.data().len() - 1);
@@ -191,11 +193,12 @@ pub fn logo_bin_to_file<F: Write + Seek>(
         let identifier = vec![0u8; IDENTIFIER_SIZE - name.len()];
         new_file.write_all(&identifier[..])?;
 
-        let fill_header =
-            vec![
-                0u8;
-                logo_bin.header_size - (new_file.seek(SeekFrom::Current(0))? as usize - logo.location())
-            ];
+        let fill_header = vec![
+            0u8;
+            logo_bin.header_size
+                - (new_file.seek(SeekFrom::Current(0))? as usize
+                    - logo.location())
+        ];
         new_file.write_all(&fill_header)?;
 
         new_file.write_all(&logo.data())?;

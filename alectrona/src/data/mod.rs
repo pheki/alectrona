@@ -1,18 +1,17 @@
 mod moto_kit_kat;
 mod one_plus_2;
 
-use std::io;
 use std::fmt;
+use std::io;
 use std::io::prelude::*;
 
 extern crate image;
 use image::GenericImageView;
 
+use crate::codec;
 use crate::DeviceFamily;
 use crate::LogoError;
 use LogoError::*;
-use crate::codec;
-
 
 /// The data of a single logo in a logo binary.
 #[derive(Debug)]

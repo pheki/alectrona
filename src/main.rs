@@ -103,15 +103,17 @@ fn main() {
         }
 
         ("replace", Some(submatches)) => {
-            let to_replace = submatches.values_of("identifier").unwrap()
-                                       .zip(submatches.values_of("identifier").unwrap().skip(1))
-                                       .enumerate()
-                                       .filter(|x| x.0 % 2 == 0) // ignores "odd" values
-                                       .map(|x| x.1)
-                                       .fold(HashMap::new(), |mut map, x|  {
-                                           map.insert(x.0.to_string(), x.1.to_string());
-                                           map
-                                       });
+            let to_replace = submatches
+                .values_of("identifier")
+                .unwrap()
+                .zip(submatches.values_of("identifier").unwrap().skip(1))
+                .enumerate()
+                .filter(|x| x.0 % 2 == 0) // ignores "odd" values
+                .map(|x| x.1)
+                .fold(HashMap::new(), |mut map, x| {
+                    map.insert(x.0.to_string(), x.1.to_string());
+                    map
+                });
             Action::Replace(
                 to_replace,
                 submatches.value_of("output").unwrap().to_string(),
@@ -137,9 +139,7 @@ fn main() {
                     .expect("Could not read devices.toml");
                 &devices_string
             }
-            Err(ref err) if err.kind() == io::ErrorKind::NotFound => {
-                alectrona::DEVICES_TOML
-            }
+            Err(ref err) if err.kind() == io::ErrorKind::NotFound => alectrona::DEVICES_TOML,
             Err(_) => {
                 panic!("IO error when trying to open devices.toml");
             }
@@ -153,7 +153,8 @@ fn main() {
                 device["family"]
                     .as_str()
                     .expect("device.family is not a string"),
-            ).expect("device family not supported")
+            )
+            .expect("device family not supported")
         };
 
         let resize = if matches.occurrences_of("resize") > 0 {
