@@ -1,3 +1,15 @@
+[condor]
+name = "Moto E"
+family = "MotoKitKat"
+width = 540
+height = 960
+
+[otus]
+name = "Moto E 2015 (2nd gen)"
+family = "MotoKitKat"
+width = 540
+height = 960
+
 [falcon]
 name = "Moto G"
 family = "MotoKitKat"
