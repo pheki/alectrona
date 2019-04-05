@@ -2,11 +2,10 @@ use std::borrow::Cow;
 use std::io::prelude::*;
 use std::io::SeekFrom;
 
-use crate::DeviceFamily::OnePlus3;
+use crate::DeviceFamily::OnePlus2;
 
 use crate::data::*;
 
-const HEADER_SIZE: usize = 4096;
 const NAME_SIZE: usize = 64;
 const IDENTIFIER_SIZE: usize = 288;
 const MIME: &str = "SPLASH!!";
@@ -20,8 +19,6 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         return Err(WrongImageMagicNumber);
     }
 
-    let header_size = HEADER_SIZE;
-
     file.seek(SeekFrom::Start(48))?;
     let mut offsets: Vec<usize> = Vec::new();
     let mut offset = [0u8; 4];
@@ -31,7 +28,20 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
         offsets.push(offset);
     }
 
-    // would be good to verify here if HEADER_SIZE's really 4096 bytes
+    // Checks size of buffer by verifying start of run-length encoding (first image)
+    // The second byte should not be 0 on start of image, as it would mean
+    // that the first byte would be repeated 0 times
+    let mut buffer = [0u8; 2];
+    let mut header_size: Option<usize> = None;
+    for position in (0x0..0x10).map(|o| 0x100 + o*0x100) {
+        file.seek(SeekFrom::Start(position))?;
+        file.read_exact(&mut buffer)?;
+        if buffer[1] != 0 {
+            header_size = Some(position as usize);
+            break;
+        }
+    }
+    let header_size = header_size.ok_or(WrongImageFormat)?;
 
     let mut logos = Vec::new();
     for offset in offsets {
@@ -94,7 +104,7 @@ pub fn logo_bin_from_file<F: Read + Seek>(file: &mut F) -> Result<LogoBin, LogoE
     }
 
     Ok(LogoBin {
-        family: OnePlus3,
+        family: OnePlus2,
         mime,
         header_size,
         logos,
@@ -107,7 +117,7 @@ pub fn process_changes(logo_bin: &mut LogoBin) {
     for logo in logo_bin.logos.iter_mut() {
         let location = match last_used {
             None => 0,
-            Some(last_used) => last_used + (0x1000 - (last_used % 0x1000)),
+            Some(last_used) => last_used + (logo_bin.header_size - (last_used % logo_bin.header_size)),
         };
         logo.set_location(location);
         last_used = Some(location + logo_bin.header_size + logo.data().len() - 1);
@@ -184,7 +194,7 @@ pub fn logo_bin_to_file<F: Write + Seek>(
         let fill_header =
             vec![
                 0u8;
-                HEADER_SIZE - (new_file.seek(SeekFrom::Current(0))? as usize - logo.location())
+                logo_bin.header_size - (new_file.seek(SeekFrom::Current(0))? as usize - logo.location())
             ];
         new_file.write_all(&fill_header)?;
 

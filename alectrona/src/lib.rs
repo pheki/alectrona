@@ -43,8 +43,8 @@ pub enum DeviceFamily {
     ///
     /// (I am not sure about devices that have been updated from older versions to KitKat).
     MotoKitKat,
-    /// This family is for the OnePlus 3 (it could possibly work for OnePlus 3T devices, but I'm not sure).
-    OnePlus3,
+    /// This family is for the OnePlus 2 and OnePlus 3 (it could possibly work for OnePlus 3T devices, but I'm not sure).
+    OnePlus2,
     // Custom(String),
 }
 
@@ -53,7 +53,7 @@ impl FromStr for DeviceFamily {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "MotoKitKat" => Ok(DeviceFamily::MotoKitKat),
-            "OnePlus3" => Ok(DeviceFamily::OnePlus3),
+            "OnePlus2" => Ok(DeviceFamily::OnePlus2),
             _ => Err(UnsupportedDevice),
         }
     }

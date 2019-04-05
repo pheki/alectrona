@@ -22,8 +22,14 @@ family = "MotoKitKat"
 width = 1080
 height = 1920
 
+[oneplus2]
+name = "OnePlus 2"
+family = "OnePlus2"
+width = 1080
+height = 1920
+
 [oneplus3]
 name = "OnePlus 3"
-family = "OnePlus3"
+family = "OnePlus2"
 width = 1080
 height = 1920

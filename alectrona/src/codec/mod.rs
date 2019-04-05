@@ -4,7 +4,7 @@ use super::DeviceFamily;
 use crate::LogoError;
 
 mod moto_kit_kat;
-mod one_plus_3;
+mod one_plus_2;
 
 pub fn decode(
     family: DeviceFamily,
@@ -14,7 +14,7 @@ pub fn decode(
 ) -> Result<image::DynamicImage, LogoError> {
     match family {
         DeviceFamily::MotoKitKat => moto_kit_kat::decode(data, width, height),
-        DeviceFamily::OnePlus3 => one_plus_3::decode(data, width, height),
+        DeviceFamily::OnePlus2 => one_plus_2::decode(data, width, height),
         // _ => Err(UnsupportedDevice),
     }
 }
@@ -22,7 +22,7 @@ pub fn decode(
 pub fn encode(family: DeviceFamily, img: image::DynamicImage) -> Vec<u8> {
     match family {
         DeviceFamily::MotoKitKat => moto_kit_kat::encode(img),
-        DeviceFamily::OnePlus3 => one_plus_3::encode(img),
+        DeviceFamily::OnePlus2 => one_plus_2::encode(img),
         // _ => Err(UnsupportedDevice),
     }
 }

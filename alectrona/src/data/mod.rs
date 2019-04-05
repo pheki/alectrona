@@ -1,5 +1,5 @@
 mod moto_kit_kat;
-mod one_plus_3;
+mod one_plus_2;
 
 use std::io;
 use std::fmt;
@@ -87,7 +87,7 @@ impl LogoBin {
     ) -> Result<LogoBin, LogoError> {
         match family {
             DeviceFamily::MotoKitKat => moto_kit_kat::logo_bin_from_file(file),
-            DeviceFamily::OnePlus3 => one_plus_3::logo_bin_from_file(file),
+            DeviceFamily::OnePlus2 => one_plus_2::logo_bin_from_file(file),
         }
     }
 
@@ -98,7 +98,7 @@ impl LogoBin {
     pub fn process_changes(&mut self) {
         match self.family {
             DeviceFamily::MotoKitKat => moto_kit_kat::process_changes(self),
-            DeviceFamily::OnePlus3 => one_plus_3::process_changes(self),
+            DeviceFamily::OnePlus2 => one_plus_2::process_changes(self),
         }
     }
 
@@ -201,7 +201,7 @@ impl LogoBin {
         }
         match self.family {
             DeviceFamily::MotoKitKat => moto_kit_kat::logo_bin_to_file(self, new_file),
-            DeviceFamily::OnePlus3 => one_plus_3::logo_bin_to_file(self, new_file),
+            DeviceFamily::OnePlus2 => one_plus_2::logo_bin_to_file(self, new_file),
         }
     }
 }

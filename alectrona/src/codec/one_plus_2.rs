@@ -20,6 +20,7 @@ pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImag
         }
     }
     if buffer.len() != expected_image_size {
+        println!("{:?}, {:?}", buffer.len(), expected_image_size);
         return Err(WrongImageSize);
     }
     // bgr to rgb
