@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Alectrona Boot Logo Manipulator</title>
+  <link rel="stylesheet" type="text/css" href="styles.css" media="screen">
+  <script type="module" src="index.js"></script>
+</head>
+<body>
+  <h1 id="title">Alectrona Boot Logo Manipulator</h1>
+  <div class="page">
+    <div class="info">
+      <h1>What's this?</h1>
+      <p>It lets you change your phone's boot logo, which is the first image that appears when you turn it on.</p>
+      <p>That boot logo, along with some other images (like the low battery and battery charging screens when your phone is turned off), can be extracted to a file usually called "logo.bin".</p>
+      <p>The goal of this project is to be able to <strong>extract and replace</strong> the images inside boot logo binaries for <strong>any possible phone</strong>, providing an unifying interface for users to create new boot logos.</p>
+      <p>Unfortunately, extracting and sending the logo.bin file to your phone can be quite complicated, but the command for sending (flashing) the new logo.bin to your phone is usually: <strong>"fastboot flash logo logo.bin"</strong> (must have fastboot and adb installed). Extracting sometimes depends on your phone and can involve some experimentation, but usually you can find the original in the same zip as the stock image for your device on the web, or already modified files with random boot logos on xda-developers for download.</p>
+      <p><strong>Compatibility: </strong>See the table on <a href="https://github.com/pheki/alectrona#devices">the repository</a> or just search for your device on the list on the first step. If you don't find yours, you can open an issue on the repository.</p>
+      <p>For the command line interface (CLI) go to the repository at <a href="https://github.com/pheki/alectrona">https://github.com/pheki/alectrona</a>.</p>
+      <p><strong>Disclaimer: </strong>I am NOT responsible for any damage that may arise from the use of this utility, including, but not limited to bricked phones, computers on fire or nuclear reactions.</p>
+      <p>
+        Library repository: <a href="https://github.com/pheki/alectrona">https://github.com/pheki/alectrona</a><br>
+        Site repository: <a href="https://github.com/pheki/alectrona-web">https://github.com/pheki/alectrona-web</a>
+      </p>
+    </div>
+    <div class="app">
+      <div class="device">
+        <div class="step-number">1</div>
+        <span>Select your device:</span>
+        <select id="select-device" oninput="handle_device(this.value)" autocomplete="off">
+          <option disabled selected value> -- select an option -- </option>
+        </select>
+      </div>
+      <div></div>
+      <div class="file">
+        <div class="step-number">2</div>
+        <span>Upload the logo bin file:</span>
+        <input type="file" id="input-file" disabled onchange="handle_file(this.files[0])" autocomplete="off">
+      </div>
+      <div></div>
+      <div class="logo-id">
+        <div class="step-number">3</div>
+        <span>Select the logo inside your logo bin file:</span>
+        <select id="select-logo-id" multiple disabled oninput="alectrona.handle_logo_id(this.value)" autocomplete="off">
+          <option disabled selected value> -- select an option -- </option>
+        </select>
+      </div>
+      <div></div>
+      <div class="image-box">
+        <div class="step-number">4</div>
+        <span>You can save the logo by clicking on it:</span>
+        <img src="imgs/placeholder.jpeg" alt="logo" height="256">
+        <a id="image-downloader" hidden download href=""></a>
+      </div>
+      <div></div>
+      <div class="replace">
+        <div class="step-number">5</div>
+        <span>Upload the image to replace the selected logo:</span>
+        <input type="file" id="input-image" disabled onchange="handle_image(this.files[0])" autocomplete="off">
+      </div>
+      <div></div>
+      <div class="generate">
+        <div class="step-number">6</div>
+        <span>Generate and extract the new logo.bin:</span>
+        <a id="logo-bin-downloader" hidden download href=""></a>
+        <button id="logo-bin-download-button" disabled onclick="export_logo_bin()" autocomplete="off">Download</button>
+      </div>
+      <div></div>
+    </div>
+  </div>
+</body>
+</html>
