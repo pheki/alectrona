@@ -2,8 +2,8 @@
   font-family: Oswald;
   font-weight: normal;
   src: local("Oswald-Regular"),
-       url("/fonts/Oswald-Regular.woff2") format("woff2"),
-       url("/fonts/Oswald-Regular.ttf") format("truetype");
+       url("fonts/Oswald-Regular.woff2") format("woff2"),
+       url("fonts/Oswald-Regular.ttf") format("truetype");
 }
 
 @font-face {
