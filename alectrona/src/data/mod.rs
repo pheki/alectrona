@@ -5,8 +5,7 @@ use std::fmt;
 use std::io;
 use std::io::prelude::*;
 
-extern crate image;
-use image::GenericImageView;
+use image::{GenericImageView, ImageFormat};
 
 use crate::codec;
 use crate::DeviceFamily;
@@ -133,15 +132,12 @@ impl LogoBin {
         extension: &str,
     ) -> Result<(), LogoError> {
         let img = self.decode_logo_with_id(id)?;
-        let format = match &extension[..] {
-            "ico" => image::ICO,
-            "jpg" | "jpeg" => image::JPEG,
-            "png" => image::PNG,
-            "bmp" => image::BMP,
-            format => {
+        let format = match ImageFormat::from_extension(extension) {
+            Some(f) => f,
+            None => {
                 return Err(IOError(io::Error::new(
                     io::ErrorKind::InvalidInput,
-                    &format!("Unsupported image format image/{:?}", format)[..],
+                    &format!("Unsupported image format image/{:?}", extension)[..],
                 )));
             }
         };

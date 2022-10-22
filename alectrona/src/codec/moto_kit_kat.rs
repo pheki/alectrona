@@ -1,15 +1,13 @@
-extern crate image;
-
 use std::ops::Range;
 
-use image::GenericImageView;
+use image::{DynamicImage, GenericImageView};
 
 use crate::LogoError;
 use LogoError::*;
 
 /// Decodes image data for harpia boot logo
 /// Returns data and dimensions in a tuple
-pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImage, LogoError> {
+pub fn decode(data: &[u8], width: u32, height: u32) -> Result<DynamicImage, LogoError> {
     let mut range = 0..data.len();
 
     let expected_image_size = (width * height * 3) as usize;
@@ -46,18 +44,18 @@ pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImag
     if buffer.len() != expected_image_size {
         return Err(WrongImageSize);
     }
-    Ok(image::DynamicImage::ImageRgb8(
+    Ok(DynamicImage::ImageRgb8(
         image::ImageBuffer::from_raw(width, height, buffer).unwrap(),
     ))
 }
 
 /// Encodes by row for MotoKitKat
-pub fn encode(img: image::DynamicImage) -> Vec<u8> {
+pub fn encode(img: DynamicImage) -> Vec<u8> {
     let dimensions = img.dimensions();
     let img = match img {
         // Rgb8 is actually 8-bits PER CHANNEL
-        image::ImageRgb8(i) => i,
-        _ => img.to_rgb(),
+        DynamicImage::ImageRgb8(i) => i,
+        _ => img.to_rgb8(),
     };
 
     let mut encoded = Vec::new();

@@ -10,9 +10,9 @@ path = "src/main.rs"
 
 [dependencies]
 alectrona = { path = "alectrona" }
-clap = "*"
-toml = "*"
-directories = "*"
+clap = "2"
+toml = "0.5"
+directories = "1.0"
 
 [profile.dev]
 opt-level = 1

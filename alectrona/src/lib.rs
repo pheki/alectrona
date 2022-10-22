@@ -20,16 +20,15 @@ use std::collections::HashMap;
 use std::convert;
 use std::error::Error;
 use std::fmt;
-use std::fs::File;
-use std::fs::OpenOptions;
+use std::fs::{File, OpenOptions};
 use std::io;
-use std::str::FromStr;
-use LogoError::*;
-
 use std::path::Path;
+use std::str::FromStr;
 
-use image::FilterType;
+use image::imageops::FilterType;
 use image::GenericImageView;
+
+use LogoError::*;
 
 /// Default devices.toml file with all known devices.
 pub static DEVICES_TOML: &str = include_str!("devices.toml");
@@ -97,7 +96,7 @@ pub fn run(config: Config) -> Result<Option<LogoBin>, LogoError> {
         Action::GetLogoBin => return Ok(Some(logo_bin)),
         Action::Extract(ref id, ref outfilename) => {
             let outpath = Path::new(&outfilename);
-            let mut outfile = create_file(&outpath, config.overwrite)?;
+            let mut outfile = create_file(outpath, config.overwrite)?;
             let extension = outpath
                 .extension()
                 .and_then(|s| s.to_str())
@@ -190,19 +189,8 @@ pub enum LogoError {
     NotADirectory,
 }
 
-impl std::fmt::Display for LogoError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(fmt, "Error: {}", self.description())?;
-        if let Some(cause) = self.source() {
-            writeln!(fmt, "Cause: {}", cause)
-        } else {
-            Ok(())
-        }
-    }
-}
-
-impl std::error::Error for LogoError {
-    fn description(&self) -> &str {
+impl LogoError {
+    fn error_str(&self) -> &str {
         match *self {
             UnsupportedDevice => "Device not supported",
             WrongImageMagicNumber => "The image magic number does not match",
@@ -216,8 +204,21 @@ impl std::error::Error for LogoError {
             NotADirectory => "File path does not exist or is not a directory",
         }
     }
+}
 
-    fn source(&self) -> Option<&(Error + 'static)> {
+impl std::fmt::Display for LogoError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(fmt, "Error: {}", self.error_str())?;
+        if let Some(cause) = self.source() {
+            writeln!(fmt, "Cause: {}", cause)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl std::error::Error for LogoError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         match *self {
             IOError(ref cause) => Some(cause),
             ImageError(ref cause) => Some(cause),

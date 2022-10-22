@@ -14,6 +14,6 @@ serde = {version = "1", optional = true}
 serde_derive = {version = "1", optional = true}
 
 [dependencies.image]
-version = "0.21"
+version = "0.24"
 default-features = false
-features = ["gif_codec", "jpeg", "ico", "png_codec", "pnm", "tga", "tiff", "webp", "bmp", "hdr", "dxt"]
+features = ["gif", "jpeg", "ico", "png", "pnm", "tga", "tiff", "webp", "bmp", "hdr", "dxt", "dds", "farbfeld", "openexr"]

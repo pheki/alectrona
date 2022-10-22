@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::io::prelude::*;
 use std::io::SeekFrom;
 
-use crate::DeviceFamily::OnePlus2;
+use DeviceFamily::OnePlus2;
 
 use crate::data::*;
 
@@ -189,7 +189,7 @@ pub fn logo_bin_to_file<F: Write + Seek>(
         new_file.write_all(&name[..])?;
 
         let identifier = logo.identifier().as_bytes();
-        new_file.write_all(&identifier[..])?;
+        new_file.write_all(identifier)?;
         let identifier = vec![0u8; IDENTIFIER_SIZE - name.len()];
         new_file.write_all(&identifier[..])?;
 
@@ -201,7 +201,7 @@ pub fn logo_bin_to_file<F: Write + Seek>(
         ];
         new_file.write_all(&fill_header)?;
 
-        new_file.write_all(&logo.data())?;
+        new_file.write_all(logo.data())?;
     }
 
     // checks if file is larger than 16 MiB

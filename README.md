@@ -1,42 +1,44 @@
-*Disclaimer: I am NOT responsible for any damage that may arise from the use of this utility, including, but not limited to bricked phones, computers on fire or nuclear reactions.*
+*Disclaimer: I am NOT responsible for any damage that may arise from the use of this utility, including, but not limited to bricked phones, computers catching fire or nuclear reactions.*
+
+*WARNING: Always use the `--resize` option. As far as I know most devices just stretch the images, but I now consider the default behavior of the replace command to be unsafe, as it does not resize the images by default.*
 
 # alectrona
 
-alectrona is a boot logo manipulator programmed in rust that was created with the intention to be device-agnostic. For now it can extract header information, images and "replace" the images on the file, generating a new valid logo.bin.
+alectrona is a boot logo manipulator programmed that was created with the intention to be device-agnostic. For now it can extract header information, images and "replace" the images on the file, generating a new valid logo.bin.
 
-# Features
+## Features
 
 - Extracts header information and images from boot logo files.
 - Replaces images in boot logo files.
 - Device-agnostic: in other words, this utility **should** be able to work with the logo.bin format of any device.
 - Free and open source.
 
-# Known Bugs
+## Known Bugs
 
 - For now, none!
 
-# Device Compatibility
+## Device Compatibility
 
-| Codename | Name |
-| --- | --- |
-| condor | Moto E |
-| otus | Moto E 2015 (2nd gen) |
-| falcon | Moto G |
-| harpia | Moto G4 Play |
-| athene | Moto G4 / Moto G4 Plus |
-| lux | Moto X Play |
-| oneplus2 | OnePlus 2 |
-| oneplus3 | OnePlus 3 |
+| Codename | Name                   |
+| -------- | ---------------------- |
+| condor   | Moto E                 |
+| otus     | Moto E 2015 (2nd gen)  |
+| falcon   | Moto G                 |
+| harpia   | Moto G4 Play           |
+| athene   | Moto G4 / Moto G4 Plus |
+| lux      | Moto X Play            |
+| oneplus2 | OnePlus 2              |
+| oneplus3 | OnePlus 3              |
 
 If you need support for a different device, just open an issue!
 
-# Installation Steps
+## Installation Steps
 
 For now, to install you need cargo (which comes with rustup). Just follow the installation steps at https://rustup.rs/ and then run ```cargo install --git https://github.com/pheki/alectrona.git```.
 
 Make sure you have rust's bin folder ($HOME/.cargo/bin) on your path.
 
-# Usage
+## Usage
 Note: this program will overwrite files by default, so be careful with your filenames.
 
 There are 4 possible subcommands to use with the alectrona-cli package:
@@ -50,7 +52,7 @@ Every one of them can be used with the following syntax:
 alectrona -d <DEVICE_CODENAME> -i <ORIGINAL_LOGO_PATH.BIN> <subcommand> ...
 ```
 
-## Get header info
+### Get header info
 
 Syntax:
 ```
@@ -61,7 +63,7 @@ Example:
 alectrona -d harpia -i logo_original.bin header
 ```
 
-## Extract single image
+### Extract single image
 Syntax:
 ```
 alectrona -d <DEVICE_CODENAME> -i <ORIGINAL_LOGO_PATH.BIN> extract <LOGO_IDENTIFIER> --output <OUTPUT_FILE>
@@ -72,7 +74,7 @@ Example:
 alectrona -d harpia -i logo_original.bin extract logo_boot -o logo_boot.png
 ```
 
-## Extract all images
+### Extract all images
 Syntax:
 ```
 alectrona -d <DEVICE_CODENAME> -i <ORIGINAL_LOGO_PATH.BIN> extract-all --output <OUTPUT_DIRECTORY>
@@ -83,7 +85,7 @@ Example:
 alectrona -d harpia -i logo_original.bin extract-all -o extraction_folder/
 ```
 
-## Replace logo images
+### Replace logo images
 NOTE: This does NOT resize images BY DEFAULT, and flashing a boot logo with images with the wrong size may have unexpected results depending on your device. Please be careful.
 
 Syntax:
@@ -99,6 +101,6 @@ Example:
 alectrona -d harpia -i logo_original.bin replace logo_boot new_boot_logo.png logo_battery new_battery_image.png -o new_logo.bin
 ```
 
-# Tests
+## Tests
 
-As automated tests depend on the original logo.bin found on devices, they won't be published here for legal reasons. But the main tests are basically sanity tests which verify testing if encoding / decoding is generates the same files.
+As automated tests depend on the original logo.bin found on devices, they won't be published here for legal reasons. But the main tests are basically sanity tests which verify testing if encoding / decoding generates the same files.
