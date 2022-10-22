@@ -1,9 +1,7 @@
-use std;
+use std::borrow::Cow;
 use std::io;
 use std::io::prelude::*;
 use std::io::SeekFrom;
-
-use std::borrow::Cow;
 
 use crate::LogoError;
 use LogoError::*;

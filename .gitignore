@@ -1,8 +1,5 @@
 /target/
 **/*.rs.bk
-alectrona/src/cemitery.rs
-alectrona/src/debug.rs
+.DS_Store
 temp
 /alectrona/tests
-/alectrona/txts
-.DS_Store

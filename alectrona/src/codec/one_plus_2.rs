@@ -1,11 +1,11 @@
-extern crate image;
+use image::{DynamicImage, ImageBuffer};
 
 use crate::LogoError;
 use LogoError::*;
 
 const MAX_REPEATED: u8 = 255;
 
-pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImage, LogoError> {
+pub fn decode(data: &[u8], width: u32, height: u32) -> Result<DynamicImage, LogoError> {
     let expected_image_size = (width * height * 3) as usize;
     let mut buffer: Vec<u8> = Vec::with_capacity(expected_image_size);
 
@@ -27,16 +27,16 @@ pub fn decode(data: &[u8], width: u32, height: u32) -> Result<image::DynamicImag
     for i in 0..buffer.len() / 3 {
         buffer.swap(i * 3, i * 3 + 2);
     }
-    Ok(image::DynamicImage::ImageRgb8(
-        image::ImageBuffer::from_raw(width, height, buffer).unwrap(),
+    Ok(DynamicImage::ImageRgb8(
+        ImageBuffer::from_raw(width, height, buffer).unwrap(),
     ))
 }
 
-pub fn encode(img: image::DynamicImage) -> Vec<u8> {
+pub fn encode(img: DynamicImage) -> Vec<u8> {
     let mut img = match img {
         // Rgb8 is actually 8-bits PER CHANNEL
-        image::ImageRgb8(i) => i,
-        _ => img.to_rgb(),
+        DynamicImage::ImageRgb8(i) => i,
+        _ => img.to_rgb8(),
     };
 
     // rgb to bgr
